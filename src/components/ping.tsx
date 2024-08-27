@@ -41,8 +41,11 @@ const PingWidget: React.FC = () => {
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    setListingId(urlParams.get('listing'));
-    setOwnerId(urlParams.get('owner'));
+    const listingId = urlParams.get('listing');
+    const ownerId = urlParams.get('owner');
+
+    setListingId(listingId);
+    setOwnerId(ownerId);
 
     if (!previewMode) {
       const pageUrl = window.location !== window.parent.location ? document.referrer : document.location.href;
@@ -56,7 +59,7 @@ const PingWidget: React.FC = () => {
     } else {
       alert("No listing or owner ID provided");
     }
-  }, [listingId, ownerId, previewMode]);
+  }, [previewMode]);
 
   const setRootStyles = (color: string, font: string) => {
     const root = document.documentElement;
