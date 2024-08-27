@@ -1,6 +1,9 @@
 const express = require('express');
 const app = express();
 const path = require('path');
+const cors = require("cors");
+const nocache = require('nocache');
+const fs = require('fs');
 const port = process.env.PORT || 3000;
 
 /* Serve static files from the React app */
