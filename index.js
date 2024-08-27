@@ -18,8 +18,28 @@ app.use(cors());
 /* No cache */
 app.use(nocache());
 
-app.get('/', (req, res) => {
+app.get('/ping', (req, res) => {
+
+    const queryParams = req.query;
+
     res.sendFile(path.join(__dirname, './build', 'index.html'));
+
+    fs.readFile(filePath, 'utf8', (err, html) => {
+        if (err) {
+            return res.status(500).send('An error occurred');
+        }
+
+        // Optionally inject the query parameters into the HTML
+        const injectedHtml = html.replace(
+            '<script id="query-params"></script>',
+            `<script>
+                window.__QUERY_PARAMS__ = ${JSON.stringify(queryParams)};
+            </script>`
+        );
+
+        // Send the modified HTML back to the client
+        res.send(injectedHtml);
+
 });
 
 app.listen(port, () => {
