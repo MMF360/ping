@@ -39,6 +39,7 @@ app.get('/ping', (req, res) => {
 
         // Send the modified HTML back to the client
         res.send(injectedHtml);
+    });
 
 });
 
