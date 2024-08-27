@@ -22,7 +22,7 @@ app.get('/ping', (req, res) => {
 
     const queryParams = req.query;
 
-    res.sendFile(path.join(__dirname, './build', 'index.html'));
+    const filePath = path.join(__dirname, './build', 'index.html');
 
     fs.readFile(filePath, 'utf8', (err, html) => {
         if (err) {
