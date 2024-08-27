@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import "./css/ping.css";
+import "../css/ping.css";
 
 
 interface Ping {
