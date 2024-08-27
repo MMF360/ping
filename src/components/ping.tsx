@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import "../css/ping.css";
 
-
 interface Ping {
   hs_object_id: string;
   name: string;
@@ -47,7 +46,7 @@ const PingWidget: React.FC = () => {
 
     if (!previewMode) {
       const pageUrl = window.location !== window.parent.location ? document.referrer : document.location.href;
-      fetch(`https://${window.location.hostname}/_hcms/api/analytics/ping/db/view?listingId=${listingId}&pageUrl=${pageUrl}`);
+      fetch(`https://staywatch.ai/_hcms/api/analytics/ping/db/view?listingId=${listingId}&pageUrl=${pageUrl}`);
     }
 
     if (listingId) {
@@ -129,7 +128,7 @@ const PingWidget: React.FC = () => {
   };
 
   const getPingData = (id: string) => {
-    fetch(`https://${window.location.hostname}/_hcms/api/ping/listing-v2/listing`, {
+    fetch(`https://staywatch.ai/_hcms/api/ping/listing-v2/listing`, {
       method: "POST",
       headers: {
         Accept: "application/json, text/plain, */*",
@@ -155,7 +154,7 @@ const PingWidget: React.FC = () => {
   };
 
   const getOwnerPingsData = (id: string) => {
-    fetch(`https://${window.location.hostname}/_hcms/api/ping/multi-listings/listings`, {
+    fetch(`https://staywatch.ai/_hcms/api/ping/multi-listings/listings`, {
       method: "POST",
       headers: {
         Accept: "application/json, text/plain, */*",
