@@ -7,7 +7,7 @@ const fs = require('fs');
 const port = process.env.PORT || 3000;
 
 /* Serve static files from the React app */
-app.use(express.static(path.join(__dirname, '../ping/build')));
+app.use(express.static(path.join(__dirname, 'build')));
 
 /* Allows app to handle JSON POST data */
 app.use(express.json());
@@ -19,7 +19,7 @@ app.use(cors());
 app.use(nocache());
 
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../ping/build', 'index.html'));
+    res.sendFile(path.join(__dirname, './build', 'index.html'));
 });
 
 app.listen(port, () => {
