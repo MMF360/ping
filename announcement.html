@@ -1,0 +1,718 @@
+<!-- Embeddable Widget Code -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Announcement Widget</title>
+  </head>
+
+  <body>
+    <!-- announcement bar -->
+    <div id="ping__announc-banner">
+      <span id="ping__previewText"></span>
+      <a class="ping__popup-btn" id="ping__booking-link" target="_blank" href=""
+        >Book the Stay</a
+      >
+      <button class="ping__popup-btn" onclick="openForm()">Get Notified</button>
+      <button
+        id="ping__close-banner"
+        class="ping__close"
+        onclick="closeBanner()"
+      ></button>
+    </div>
+
+    <!-- popup -->
+    <div id="ping__announc-popup">
+      <div class="ping__card-top"></div>
+
+      <button
+        id="close-popup"
+        class="ping__close"
+        onclick="closeForm()"
+      ></button>
+      <div class="ping__widget-wrapper">
+        <div class="ping__widget-container">
+          <div id="ping__popup-form" class="ping__popup-form">
+            <div id="ping__widget-card" class="ping__widget-card">
+              <div class="ping__widget-content">
+                <h1></h1>
+                <p class="ping__card-nextAvailable">
+                  Next Available:
+                  <strong><span id="ping__card-nextAvailable"></span></strong>
+                </p>
+              </div>
+            </div>
+            <p id="ping__widget-instructions">
+              <i
+                >Sign up to get notified when this stay becomes available during
+                your preferred travel dates!</i
+              >
+            </p>
+            <!--[if lte IE 8]>
+              <script
+                charset="utf-8"
+                type="text/javascript"
+                src="//js.hsforms.net/forms/v2-legacy.js"
+              ></script>
+            <![endif]-->
+            <div id="ping__form-inner">
+              <script
+                charset="utf-8"
+                type="text/javascript"
+                src="https://js.hsforms.net/forms/v2.js"
+              ></script>
+            </div>
+            <p>
+              <a class="ping__popup-btn-inverse" id="ping__form-reset"
+                >Submit Another Request</a
+              >
+            </p>
+          </div>
+        </div>
+      </div>
+      <p class="ping__card-footer">
+        <span class="created-by">Ping by</span>
+        <a target="_blank" href="https://hubs.li/Q01xNClV0">
+          <img
+            src="https://www.sponstayneous.com/hubfs/sponstayneous/logos/sponstayneous-logo-white.svg"
+            alt="sponstayneous logo"
+          />
+        </a>
+      </p>
+    </div>
+
+    <script>
+      const pingAnnouncBanner = document.getElementById("ping__announc-banner");
+      const pingAnnouncPopup = document.getElementById("ping__announc-popup");
+
+      // Custom Params from the iFrame request
+      const urlParams = new URLSearchParams(window.location.search);
+      const hsObjectId = urlParams.get("listing");
+      const customColor = urlParams.get("color");
+      const previewMode = urlParams.get("previewMode");
+      const fontOption = urlParams.get("font");
+      const previewText = urlParams.get("previewText");
+      const previewTextShowMobile = urlParams.get("previewTextShowMobile");
+
+      const pageUrl =
+        window.location != window.parent.location
+          ? document.referrer
+          : document.location.href;
+
+      // Request to get listing info
+      if (!previewMode) {
+        fetch(
+          `https://${window.location.hostname}/_hcms/api/analytics/ping/db/view?listingId=${hsObjectId}&pageUrl=${pageUrl}`
+        );
+      }
+
+      let root = document.documentElement;
+
+      function openForm() {
+        pingAnnouncPopup.style.display = "block";
+        pingAnnouncPopup.classList.add("active");
+        window.parent.postMessage(
+          {
+            type: "announcement",
+            action: "open",
+            widgetHeight: "100vh",
+            widgetBg: "#00000099",
+          },
+          "*"
+        );
+      }
+
+      function closeForm() {
+        pingAnnouncPopup.style.display = "none";
+        window.parent.postMessage(
+          {
+            type: "announcement",
+            action: "close",
+            widgetHeight: "100px",
+            widgetBg: "transparent",
+          },
+          "*"
+        );
+        pingAnnouncPopup.classList.remove("active");
+      }
+
+      function closeBanner() {
+        pingAnnouncPopup.remove();
+        window.parent.postMessage(
+          {
+            type: "announcement",
+            action: "close",
+            widgetHeight: "0px",
+            widgetBg: "transparent",
+          },
+          "*"
+        );
+      }
+
+      // Set Root Fonts Styles
+      if (fontOption) {
+        var fontLink = document.createElement("link");
+        fontLink.setAttribute("rel", "stylesheet");
+        fontLink.setAttribute(
+          "href",
+          `https://fonts.googleapis.com/css?family=${fontOption}`
+        );
+        document.body.appendChild(fontLink);
+        root.style.setProperty("--font", fontOption);
+      } else {
+        root.style.setProperty("--font", "Arial");
+      }
+
+      // Set Root Color Styles
+      root.style.setProperty("--color", `#${customColor}`);
+
+      // Elements to populate with dynamic content
+      const widgetShell = document.getElementById("ping-shell");
+      const widgetWrapper = document.querySelector(".ping-wrapper");
+      const widgetWrapperClose = document.getElementById("ping-close");
+      const nextAvailableDate = document.getElementById(
+        "ping__card-nextAvailable"
+      );
+      const listingLink = document.getElementById("ping__booking-link");
+      const notifiedLink = document.getElementById("ping-card-notified");
+      const notificationForm = document.getElementById("ping-form");
+      const notificationFormInner = document.getElementById("ping__form-inner"); // added
+      const notificationFormBack = document.getElementById("ping-form-back");
+      const notificationFormReset = document.getElementById("ping__form-reset");
+      const widgetCard = document.getElementById("ping-card");
+      const widgetPreviewWrapper = document.getElementById(
+        "sponstayneous-widget__preview"
+      );
+      const widgetTop = document.querySelector(".ping__card-top");
+      const widgetContent = document.querySelector(".ping-content");
+      const widgetFooter = document.querySelector(".ping__card-footer"); // added
+
+      const widgetPreview = document.querySelector(
+        "#sponstayneous-widget__preview"
+      );
+
+      // Dynamic setting of element styles
+      const headingOne = document.querySelector("#ping__announc-popup h1");
+      const widgetIcon = document.getElementById("sponstayneous-widget__icon");
+      const widgetIconInner = document.querySelector(
+        "#sponstayneous-widget__icon .sponstayneous-widget__icon-inner"
+      );
+      const suitcaseIcon = document.querySelector(
+        ".sponstayneous-widget__icon-suitcase"
+      );
+      // const closeIcon = document.querySelector(".sponstayneous-widget__icon-close");
+
+      const widgetPreviewText = document.getElementById("ping__previewText"); // added
+
+      const widgetBtns = document.getElementsByClassName("ping__popup-btn"); // added
+
+      // Set Widget Preview Text
+      widgetPreviewText.textContent = previewText;
+
+      // Set background color of widget buttons
+      for (var i = 0; i < widgetBtns.length; i++) {
+        widgetBtns[i].style.background = `#${customColor}`;
+      }
+
+      var listing;
+      var listingId;
+      var listingName;
+      var listingBackgroundImage;
+      var listingNextAvailableDate;
+      var listingAirbnbLink;
+      var listingNotificationFormId;
+      var listingProductChosen;
+
+      // Get Ping Listing Info
+      fetch("https://sponstayneous.com/_hcms/api/ping/listing", {
+        method: "POST",
+        headers: {
+          Accept: "application/json, text/plain, */*",
+          "Content-Type": "application/json",
+        },
+        mode: "cors",
+        body: JSON.stringify({
+          hsListingId: hsObjectId,
+        }),
+      })
+        .then(function (response) {
+          return response.json();
+        })
+        .then(function (data) {
+          if (data) {
+            listing = data;
+            listingId = listing.hs_object_id ? listing.hs_object_id : "";
+            listingName = listing.name;
+            listingBackgroundImage = listing.ping_preview_image
+              ? listing.ping_preview_image
+              : listing.preview_image
+              ? listing.preview_image
+              : "";
+            listingNextAvailableDate = listing.next_available_date_formatted
+              ? listing.next_available_date_formatted
+              : "Unavailable";
+            listingAirbnbLink = listing.ping_custom_link
+              ? listing.ping_custom_link
+              : listing.link
+              ? listing.link
+              : "";
+            listingNotificationFormId = listing.notification_form_id;
+            listingProductChosen = listing.ping_product_name;
+
+            if (listingProductChosen == "Ping Premium") {
+              widgetFooter.remove();
+            } else {
+            }
+
+            headingOne.textContent = listingName;
+            if (listingBackgroundImage) {
+              widgetTop.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.45)), url(${listingBackgroundImage})`;
+              widgetTop.style.backgroundSize = "cover";
+              widgetTop.style.backgroundPosition = "center";
+            }
+            nextAvailableDate.textContent = listingNextAvailableDate;
+            listingLink.href = listingAirbnbLink;
+            resetForm(listingNotificationFormId);
+          }
+        });
+
+      // Notification Form Reset
+      function resetForm(listingNotificationFormId) {
+        notificationFormReset.style.display = "none";
+
+        var script = document.createElement("script");
+        var inlineScript = document.createTextNode(`hbspt.forms.create({
+                        region: "na1",
+                        portalId: "44645317",
+                        formId: "${listingNotificationFormId}",
+                        cssClass: 'ping-form',
+                        css: ''
+                    });`);
+
+        script.appendChild(inlineScript);
+        notificationFormInner.appendChild(script);
+      }
+
+      window.addEventListener("message", (event) => {
+        if (
+          event.origin == "https://forms.hsforms.com" &&
+          event.data.accepted
+        ) {
+          notificationFormReset.style.display = "inline-block";
+        }
+      });
+
+      notificationFormReset.addEventListener(
+        "click",
+        function () {
+          document.querySelector("#ping__form-inner .hbspt-form").remove();
+          resetForm(listingNotificationFormId);
+        },
+        false
+      );
+    </script>
+
+    <style>
+
+      @import url("https://use.typekit.net/oho4vxd.css");
+
+      body {
+           margin: 0px;
+       }
+
+       body * {
+           font-family: var(--font);
+       }
+
+       body::-webkit-scrollbar {
+           width: 8.5px;
+       }
+
+       body::-webkit-scrollbar-track {
+           background: #f7f7f7;
+       }
+
+       body::-webkit-scrollbar-thumb {
+           background-color: var(--color);
+           outline: 1px solid var(--color);
+       }
+
+       .ping__close {
+           position: absolute;
+           top: 10px;
+           right: 10px;
+           background: #fff !important;
+           background-color: #fff !important;
+           border: 0px;
+           outline: 0px;
+           cursor: pointer;
+           border-radius: 40px;
+           width: 35px;
+           height: 35px;
+           display: flex;
+           align-items: center;
+           justify-content: center;
+       }
+
+       .ping__close:after {
+           content: '';
+           display: block;
+           background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 19 18' class='conversations-visitor-close-icon'%3E%3Cg fill='none' fill-rule='evenodd' stroke='none' stroke-width='1'%3E%3Cg fill='%23000000' transform='translate(-927 -991) translate(900.277 962)'%3E%3Cg transform='translate(27 29)'%3E%3Cpath d='M10.627 9.013l6.872 6.873.708.707-1.415 1.414-.707-.707-6.872-6.872L2.34 17.3l-.707.707L.22 16.593l.707-.707L7.8 9.013.946 2.161l-.707-.708L1.653.04l.707.707L9.213 7.6 16.066.746l.707-.707 1.414 1.414-.707.708-6.853 6.852z'%3E%3C/path%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+           background-size: contain;
+           background-position: center;
+           width: 15.5px;
+           height: 15.5px;
+       }
+
+       .ping__popup-btn {
+           display: inline-block;
+           padding: 9px 25px;
+           border-radius: 20px;
+           color: var(--color);
+           font-size: clamp(13px, 1.125vw, 18px);
+           text-decoration: unset;
+           margin: 2.5px;
+           background: #fff !important;
+           background-color: #fff !important;
+           outline: 0px;
+           border: 0px;
+           cursor: pointer;
+       }
+
+       .ping__popup-btn-inverse {
+           display: inline-block;
+           padding: 9px 25px;
+           border-radius: 20px;
+           color: #fff;
+           font-size: clamp(13px, 1.125vw, 18px);
+           text-decoration: unset;
+           margin: 2.5px;
+           background: var(--color) !important;
+           background-color: var(--color) !important;
+           outline: 0px;
+           border: 0px;
+           cursor: pointer;
+       }
+
+       #ping__announc-banner {
+           background-color: var(--color);
+           color: #fff;
+           padding: 10px;
+           text-align: center;
+       }
+
+       #ping__announc-banner #ping__previewText {
+           font-family: var(--font);
+       }
+
+       @media screen and (max-width: 800px) {
+           #ping__announc-banner #ping__previewText {
+               display: block;
+           }
+       }
+
+       #ping__announc-popup {
+           display: none;
+           position: fixed;
+           bottom: 10px;
+           right: 10px;
+           border-radius: 4px;
+           background-size: cover;
+           background-repeat: no-repeat;
+           height: min(650px, 100%);
+           width: min(450px, 100%);
+           margin-bottom: 10px;
+           overflow: auto;
+           box-shadow: 0 5px 20px rgb(0 0 0 / 20%);
+           background: var(--color);
+       }
+
+       #ping__announc-popup .ping__widget-wrapper {}
+
+
+       #ping__announc-popup .ping__card-top {
+           height: 180px;
+           width: 100%;
+           background-color: var(--color);
+           background-size: cover;
+           background-size: 100%;
+           background-position: center center;
+       }
+
+       /* Popup footer w/Spon logo */
+       .ping__card-footer {
+           display: flex;
+           justify-content: center;
+           align-items: center;
+           font-size: clamp(12px, 1vw, 16px);
+           margin-top: 20px;
+       }
+
+       .ping__card-footer>* {
+           margin: 2.5px;
+           color: #fff;
+       }
+
+       .ping__card-footer a {
+           width: 45%;
+           height: auto;
+       }
+
+       .ping__card-footer a img {
+           width: 100%;
+       }
+
+       /* Popup Form Fields */
+       #ping__popup-form {
+           padding: clamp(20px, 2.5vw, 40px);
+           max-width: 100%;
+           margin: 15px;
+           margin-top: -30px;
+           padding: 20px;
+           background: #fff;
+           border-radius: 4px;
+           box-shadow: 0 5px 20px rgb(0 0 0 / 10%);
+       }
+
+       #ping__popup-form h1 {
+           display: inline-block;
+           font-weight: 700;
+           -webkit-font-smoothing: antialiased;
+           font-size: 26px;
+           line-height: 32px;
+           margin-bottom: 10px;
+           vertical-align: baseline;
+           margin-top: 0px;
+           color: var(--color) !important;
+       }
+
+       #ping__popup-form .ping__card-nextAvailable {
+           font-size: 17px;
+           text-align: center;
+           -webkit-font-smoothing: antialiased;
+           line-height: normal;
+           margin-bottom: 10px;
+           {# text-transform: uppercase; #}
+       }
+
+       #ping__popup-form #ping__widget-instructions {
+           font-size: 15px;
+
+       }
+
+       #ping__popup-form #ping__popup-form-close {
+           position: absolute;
+           top: 5px;
+           right: 5px;
+       }
+
+       .ping__popup-form p {
+           margin-top: 0px;
+       }
+
+       .ping__popup-form form {
+           width: 100%;
+           max-width: 800px;
+           margin: auto;
+       }
+
+       .ping__popup-form .hs-form-field {
+           margin-bottom: 10px;
+           background: #f7f6fb;
+           border-radius: 5px;
+           padding: 7.5px;
+       }
+
+       /* Labels */
+       .ping__popup-form form label {
+           display: block;
+           font-size: 11px;
+           font-weight: 700;
+           margin-bottom: 0.35rem;
+           color: var(--color) !important;
+       }
+
+       /* Help text - legends */
+       .ping__popup-form form legend {
+           font-size: 0.875rem;
+       }
+
+       /* Inputs */
+       .ping__popup-form form input[type="text"],
+       .ping__popup-form form input[type="email"],
+       .ping__popup-form form input[type="password"],
+       .ping__popup-form form input[type="tel"],
+       .ping__popup-form form input[type="number"],
+       .ping__popup-form form input[type="file"],
+       .ping__popup-form form input[type="date"],
+       .ping__popup-form form select,
+       .ping__popup-form form textarea {
+           background-color: transparent;
+           border: 0px;
+           border-radius: 0px;
+           width: 90%;
+           margin: auto;
+           width: -webkit-fill-available;
+           width: -moz-available;
+           display: inline-block;
+           font-size: 18px;
+           outline: none !important;
+           min-height: 20px;
+           -webkit-appearance: none;
+       }
+
+       .ping__popup-form form .hs-datepicker * {
+           font-family: var(--font);
+       }
+
+       .ping__popup-form form .hs-datepicker .fn-date-picker .pika-lendar {
+           margin: 20px !important;
+       }
+
+       .ping__popup-form form .hs-datepicker .fn-date-picker .pika-prev,
+       .ping__popup-form form .hs-datepicker .fn-date-picker .pika-next {
+           height: 20px;
+           width: 20px;
+           position: absolute;
+           top: 50%;
+           transform: translateY(-50%);
+           opacity: 1;
+       }
+
+       .ping__popup-form form .hs-datepicker .fn-date-picker .pika-next {
+           right: 20px;
+           background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11.414' height='20.828' viewBox='0 0 11.414 20.828'%3E%3Cdefs%3E%3Cstyle%3E.a%7Bfill:none;stroke:%235d5d5d;stroke-linecap:round;stroke-linejoin:round;stroke-width:2px;%7D%3C/style%3E%3C/defs%3E%3Cpath class='a' d='M13.5,27l9-9-9-9' transform='translate(-12.086 -7.586)'/%3E%3C/svg%3E");
+       }
+
+       .ping__popup-form form .hs-datepicker .fn-date-picker .pika-prev {
+           left: 20px;
+           background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11.414' height='20.828' viewBox='0 0 11.414 20.828'%3E%3Cdefs%3E%3Cstyle%3E.a%7Bfill:none;stroke:%235d5d5d;stroke-linecap:round;stroke-linejoin:round;stroke-width:2px;%7D%3C/style%3E%3C/defs%3E%3Cpath class='a' d='M22.5,27l-9-9,9-9' transform='translate(-12.5 -7.586)'/%3E%3C/svg%3E");
+       }
+
+       .ping__popup-form form .fn-date-picker.pika-single {
+           border-radius: 10px;
+           background: #fff;
+           border: 1px solid #f7f7f7;
+           box-shadow: 0 5px 20px rgb(0 0 0 / 20%);
+       }
+
+       .ping__popup-form form .fn-date-picker table {
+           background-color: #fff;
+       }
+
+       .ping__popup-form form .fn-date-picker .pika-button {
+           border: 2px solid transparent;
+           background: transparent !important;
+       }
+
+       .ping__popup-form form .fn-date-picker .pika-button:hover {
+           border: 2px solid var(--color) !important;
+           background: transparent !important;
+           color: var(--color) !important;
+           box-shadow: unset !important;
+       }
+
+       .ping__popup-form form .fn-date-picker .is-selected .pika-button {
+           border: 2px solid var(--color) !important;
+           background: transparent !important;
+           color: var(--color) !important;
+           box-shadow: unset !important;
+       }
+
+       .ping__popup-form form .fn-date-picker .is-today .pika-button {
+           color: var(--color) !important;
+           font-weight: 900 !important;
+           box-shadow: unset !important;
+       }
+
+       .ping__popup-form form fieldset {
+           max-width: 100% !important;
+       }
+
+       .ping__popup-form form fieldset.form-columns-1 .hs-input {
+           width: 100% !important;
+       }
+
+       /* Inputs - checkbox/radio */
+       .ping__popup-form form .inputs-list {
+           margin: 0;
+           padding: 0;
+           list-style: none;
+       }
+
+       .ping__popup-form form .inputs-list>li {
+           display: block;
+           margin: 0.7rem 0;
+       }
+
+       .ping__popup-form form .inputs-list input,
+       .ping__popup-form form .inputs-list span {
+           vertical-align: middle;
+       }
+
+       .ping__popup-form form input[type="checkbox"],
+       .ping__popup-form form input[type="radio"] {
+           cursor: pointer;
+           margin-right: 0.35rem;
+           -webkit-appearance: none;
+       }
+
+       /* Inputs - datepicker */
+       .ping__popup-form .hs-dateinput {
+           position: relative;
+       }
+
+       .ping__popup-form .hs-dateinput:before {
+           content: "\01F4C5";
+           position: absolute;
+           right: 10%;
+           top: 50%;
+           transform: translateY(-50%);
+       }
+
+       .ping__popup-form form .hs-richtext,
+       .ping__popup-form form .hs-richtext p {
+           font-size: 0.875rem;
+           margin: 0 0 1.4rem;
+       }
+
+       .ping__popup-form form .hs-richtext img {
+           max-width: 100% !important;
+       }
+
+       /* Submit button */
+       .ping__popup-form form input[type="submit"],
+       .ping__popup-form form .hs-button,
+       .ping__popup-form form input[type="submit"]:hover,
+       .ping__popup-form form .hs-button:hover {
+           border: 1px solid var(--color);
+           background-color: var(--color);
+           display: inline-block;
+           position: relative;
+           border-radius: 30px;
+           padding: 10px 50px;
+           color: #fff;
+           text-transform: uppercase;
+           text-decoration: none;
+           cursor: pointer;
+           margin: 5px 2.5px 5px 2.5px;
+           text-align: center;
+           font-size: clamp(13px, 1vw, 16px);
+           font-weight: 900;
+           -webkit-appearance: none;
+       }
+
+       @media screen and (max-width: 800px) {
+           #ping__announc-popup {
+               bottom: 0px;
+               right: 0px;
+               height: 100vh;
+               max-height: unset;
+               margin-bottom: 0px;
+               border-radius: 0px;
+           }
+       }
+    </style>
+  </body>
+</html>

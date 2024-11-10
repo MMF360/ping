@@ -1,0 +1,38 @@
+#ping[type*="announcement"] {
+  display: flex;
+  align-items: flex-end;
+  position: fixed;
+  z-index: 99999999999999999999;
+  height: 100px;
+  right: 0;
+  left: 0;
+  top: 0;
+  bottom: unset;
+  width: 100%;
+  transition: width 200ms ease 0s, height 200ms ease 0s,
+    max-height 200ms ease 0s, transform 300ms cubic-bezier(0, 1.2, 1, 1) 0s,
+    opacity 83ms ease-out 0s;
+}
+
+[type*="announcement"] #ping__widget-iframe {
+  display: initial !important;
+  width: 100% !important;
+  height: 100% !important;
+  border: none !important;
+  position: absolute !important;
+  bottom: 0 !important;
+  right: 0 !important;
+  background: transparent !important;
+}
+
+[type*="announcement"] #ping__widget-iframe body::-webkit-scrollbar {
+  width: 1em;
+}
+
+[type*="announcement"] #ping__widget-iframe body::-webkit-scrollbar-track {
+  background: unset;
+}
+
+[type*="announcement"] #ping__widget-iframe body::-webkit-scrollbar-thumb {
+  background-color: #fff;
+}
